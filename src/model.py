@@ -158,12 +158,15 @@ def model(hparams, X, past=None, scope='model', reuse=False):
 
         # Transformer
         presents = []
+        hiddens = []
         pasts = tf.unstack(past, axis=1) if past is not None else [None] * hparams.n_layer
         assert len(pasts) == hparams.n_layer
         for layer, past in enumerate(pasts):
             h, present = block(h, 'h%d' % layer, past=past, hparams=hparams)
             presents.append(present)
+            hiddens.append(h)
         results['present'] = tf.stack(presents, axis=1)
+        results['hidden'] = tf.stack(hiddens, axis=1)
         h = norm(h, 'ln_f')
 
         # Language model loss.  Do tokens <n predict token n?
